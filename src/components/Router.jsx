@@ -2,7 +2,7 @@ import Home from "../routes/Home";
 import Auth from "../routes/Auth";
 import { Routes, Route } from "react-router";
 
-function Router({isLoggedIn}) {
+function Router({ isLoggedIn }) {
   return (
     <>
       <Routes>
