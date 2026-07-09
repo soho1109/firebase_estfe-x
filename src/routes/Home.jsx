@@ -16,7 +16,7 @@ function Home() {
         comment,
         date: serverTimestamp(),
       });
-      console.log("다음 글이 추가 되었습니다.: ", docRef.id);
+      setComment('');
     } catch (e) {
       console.error('글 추가시 에러가 발생했습니다.', e)
     }
@@ -38,6 +38,7 @@ function Home() {
           variant="outlined"
           multiline
           rows={5}
+          value={comment}
           onChange={handleChange}
         />
         <Button sx={{ mt: 2 }} type="submit" variant="contained">
