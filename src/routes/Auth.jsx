@@ -7,7 +7,16 @@ function Auth() {
     email: "",
     password: "",
   });
+
   console.log(form);
+  //이메일,비밀번호 변동하면 할일
+  const handleChange = e => {
+    const {name, value} = e.target;
+    setForm(prev => ({ 
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   return (
     <>
@@ -21,14 +30,16 @@ function Auth() {
           type="text"
           name="email"
           variant="outlined"
+          onChange={handleChange}
         />
         <TextField
           sx={{ mt: 2 }}
           fullWidth
           label="Password"
-          type="email"
-          name="email"
+          type="password"
+          name="password"
           variant="outlined"
+          onChange={handleChange}
         />
         <Button sx={{ mt: 2 }} type="sumit" variant="contained">Login</Button>
       </Box>
