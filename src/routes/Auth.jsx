@@ -1,7 +1,12 @@
 import { useState } from "react";
-import { Box, Typography, TextField, Button, Divider } from '@mui/material';
+import { Box, Typography, TextField, Button, Divider } from "@mui/material";
 import { authService } from "../firebase";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
+} from "firebase/auth";
 
 function Auth() {
   const [newAccount, setNewAccount] = useState(true);
@@ -11,45 +16,60 @@ function Auth() {
   });
 
   const auth = authService;
+  const provider = new GoogleAuthProvider();
 
   console.log(form);
   //이메일,비밀번호 변동하면 할일
   const handleChange = e => {
-    const {name, value} = e.target;
-    setForm(prev => ({ 
+    const { name, value } = e.target;
+    setForm(prev => ({
       ...prev,
       [name]: value,
     }));
   };
 
-  const onSubmit = (e) => {
+  const onSubmit = e => {
     e.preventDefault();
     if (newAccount) {
       //회원가입
       createUserWithEmailAndPassword(auth, form.email, form.password)
-      .then((userCredential) => {
-        // Signed up 
-        const user = userCredential.user;
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(errorCode, errorMessage);
-      });
+        .then(userCredential => {
+          // Signed up
+          const user = userCredential.user;
+        })
+        .catch(error => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          console.log(errorCode, errorMessage);
+        });
     } else {
       //로그인
       signInWithEmailAndPassword(auth, form.email, form.password)
-      .then((userCredential) => {
-        // Signed in 
-        const user = userCredential.user;
+        .then(userCredential => {
+          // Signed in
+          const user = userCredential.user;
+        })
+        .catch(error => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+        });
+    }
+  };
+  const onGoogleSignIn = () => {
+    signInWithPopup(auth, provider)
+      .then(result => {
+        const credential = GoogleAuthProvider.credentialFromResult(result);
+        const token = credential.accessToken;
+        const user = result.user;
       })
-      .catch((error) => {
+      .catch(error => {
         const errorCode = error.code;
         const errorMessage = error.message;
+        const email = error.customData.email;
+        const credential = GoogleAuthProvider.credentialFromError(error);
+        console.log(errorCode, errorMessage, email, credential);
       });
-    }
-  }
-
+  };
   return (
     <>
       <Typography variant="h2" component="h2">
@@ -77,14 +97,18 @@ function Auth() {
           {newAccount ? "회원가입" : "로그인"}
         </Button>
         <Divider sx={{ my: 3 }} />
+        <Button type="button" variant="contained" onClick={onGoogleSignIn}>
+          {newAccount ? "구글로 회원가입" : "구글로 로그인"}
+        </Button>
+        <Divider sx={{ my: 3 }} />
         <Button
-        sx={{ mt: 2 }}
-        type="button"
-        variant="contained"
-        onClick={() => {
+          sx={{ mt: 2 }}
+          type="button"
+          variant="contained"
+          onClick={() => {
             setNewAccount(prev => !prev);
           }}
-        >          
+        >
           {newAccount ? "로그인으로 전환" : "회원가입으로 전환"}
         </Button>
       </Box>
