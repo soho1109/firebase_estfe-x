@@ -8,7 +8,17 @@ import {
   ListItem,
   ListItemText,
 } from "@mui/material";
-import { collection, addDoc, serverTimestamp, query, where, getDocs } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  limit,
+  onSnapshot,
+} from "firebase/firestore";
 import { db } from "../firebase";
 import { useEffect, useState } from "react";
 
@@ -19,12 +29,12 @@ function Home() {
   uesEffect로 데이터를 조회결과를 변수명 cmments할당
   */
   const getComments = async () => {
-    const q = query(collection(db, "comments"));
+    const q = query(collection(db, "comments"), orderBy("date", "desc"), limit(5));
 
-    const querySnapshot = await getDocs(q);
-    console.log(querySnapshot);
-    const commentsArray = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    setComments(commentsArray);
+    onSnapshot(q, querySnapshot => {
+      const commentsArray = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setComments(commentsArray);
+    });
   };
 
   useEffect(() => {
@@ -45,6 +55,7 @@ function Home() {
         date: serverTimestamp(),
       });
       setComment("");
+      // getComments();
     } catch (e) {
       console.error("글 추가시 에러가 발생했습니다.", e);
     }
@@ -78,7 +89,7 @@ function Home() {
             <ListItem key={item.id} alignItems="flex-start" divider>
               <ListItemText
                 primary={item.comment}
-                secondary={item.date.toDate().toLocaleString()}
+                secondary={item.date?.toDate ? item.date.toDate().toLocaleString():'작성시간 없음'}
               />
             </ListItem>
           ))}
